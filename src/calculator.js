@@ -6,6 +6,9 @@
  * - subtraction
  * - multiplication
  * - division
+ * - modulo
+ * - power
+ * - squareRoot
  */
 
 function addition(a, b) {
@@ -27,6 +30,21 @@ function division(a, b) {
   return a / b;
 }
 
+function modulo(a, b) {
+  return a % b;
+}
+
+function power(base, exponent) {
+  return base ** exponent;
+}
+
+function squareRoot(n) {
+  if (n < 0) {
+    throw new Error("Cannot calculate square root of a negative number.");
+  }
+  return Math.sqrt(n);
+}
+
 function calculate(operation, a, b) {
   switch (operation) {
     case "add":
@@ -45,29 +63,58 @@ function calculate(operation, a, b) {
     case "/":
     case "division":
       return division(a, b);
+    case "mod":
+    case "%":
+    case "modulo":
+      return modulo(a, b);
+    case "pow":
+    case "^":
+    case "power":
+      return power(a, b);
+    case "sqrt":
+    case "squareRoot":
+      return squareRoot(a);
     default:
-      throw new Error("Unknown operation. Use add|sub|mul|div or +|-|*|/.");
+      throw new Error(
+        "Unknown operation. Use add|sub|mul|div|mod|pow|sqrt or +|-|*|/|%|^."
+      );
   }
 }
 
 function runCli(argv) {
   const [operation, left, right] = argv;
 
-  if (!operation || left === undefined || right === undefined) {
-    console.log("Usage: node src/calculator.js <operation> <a> <b>");
-    console.log("Example: node src/calculator.js add 7 5");
+  if (!operation || left === undefined) {
+    console.log("Usage: node src/calculator.js <operation> <a> [b]");
+    console.log("Examples:");
+    console.log("  node src/calculator.js add 7 5");
+    console.log("  node src/calculator.js sqrt 25");
     process.exitCode = 1;
     return;
   }
 
   const a = Number(left);
-  const b = Number(right);
-
-  if (Number.isNaN(a) || Number.isNaN(b)) {
-    throw new Error("Both operands must be valid numbers.");
+  if (Number.isNaN(a)) {
+    throw new Error("Operand a must be a valid number.");
   }
 
-  const result = calculate(operation, a, b);
+  const sqrtOperation = operation === "sqrt" || operation === "squareRoot";
+  let result;
+
+  if (sqrtOperation) {
+    result = calculate(operation, a);
+  } else {
+    if (right === undefined) {
+      throw new Error("Operation requires two operands.");
+    }
+
+    const b = Number(right);
+    if (Number.isNaN(b)) {
+      throw new Error("Operand b must be a valid number.");
+    }
+    result = calculate(operation, a, b);
+  }
+
   console.log(result);
 }
 
@@ -85,5 +132,8 @@ module.exports = {
   subtraction,
   multiplication,
   division,
+  modulo,
+  power,
+  squareRoot,
   calculate,
 };
